@@ -226,4 +226,175 @@ df[['first', 'last']] = df['full_name'].str.split(' ', expand=True)
 나누어진 칼럼에 값 추가하기
 df = df.append({'first' : 'chanho', 'last' : 'Park'}, ignore_index=True)
 
+
+기말 --------------------------------------------------------------------------
+
+해당 칼럼으로 정렬 (오름차순 정렬)
+df.sort_values(by='성')
+
+해당 칼럼으로 정렬 (내림차순 정렬)
+df.sort_values(by='성', ascending=False)
+
+여러 칼럼으로 정렬 
+df.sort_values(by=['성','이름'], ascending=[True,False])
+
+행 추가
+df = df.append(person, ignore_index=True)
+
+행 삭제
+df.drop(index=3, inplace=True)
+
+정렬한 뒤 그 순서 저장
+df.sort_values(by=['성','이름'], ascending=[False, True], inplace=True)
+
+하나의 칼럼만을 정렬해서 보고 싶으면
+df['성'].sort_values()
+
+가장 큰 값
+df['SalaryUSD'].nlargest(10)
+
+가장 큰 값과 다른 칼럼의 값들도 보고 싶으면
+df.nlargest(10, 'SalaryUSD')[['Country','EdLevel','SalaryUSD']]
+
+값을 순서대로 정렬 했을 때, 그 중 중앙값
+df['ConvertedComp'].median()
+
+값의 평균
+df['ConvertedComp'].mean()
+
+데이터 요약
+df.describe()
+
+행 갯수
+df['ConvertedComp'].count()
+
+중복 행 체크
+df['Hobbyist'].value_counts()
+
+비율 표시
+df['Hobbyist'].value_counts(normalize=True)
+
+그룹으로 묶기
+country_grp = df.groupby(['Country'])
+
+그룹으로 묶은 것 중에서 하나의 그룹을 가져오기
+country_grp.get_group('United States')
+
+그룹으로 묶은 것 중 하나의 칼럼의 중복 체크
+country_grp['SocialMedia'].value_counts().head(50)
+
+그렇게 중복값을 체크 한 것 중 하나의 값 알아보기
+country_grp['SocialMedia'].value_counts().loc['South Korea']
+country_grp['SocialMedia'].value_counts().loc[['South Korea','Republic of Korea']]
+
+위의 그룹을 filt로 묶어서도 가능
+filt = df['Country'] == 'India'
+df.loc[filt, 'SocialMedia'].value_counts()
+
+그룹으로 묶은 값중 중간값 중에서 한국만 걸러내기
+country_grp['ConvertedComp'].median().loc['South Korea']
+
+평균값과 중간값 한꺼번에 표시하기
+country_grp['ConvertedComp'].agg(['median', 'mean'])
+
+그 중 캐나다만 뽑아내기
+country_grp['ConvertedComp'].agg(['median', 'mean']).loc['Canada']
+
+해당 필터링 중, 파이썬을 포함하고 있다면 true 아니면 false
+df[filt]['LanguageWorkedWith'].str.contains('Python')
+
+의 총 갯수
+df[filt]['LanguageWorkedWith'].str.contains('Python').sum()
+
+그룹화 하기
+country_grp['LanguageWorkedWith']
+
+각 항들이 파이썬을 얼마나 가지고 있는지
+country_grp['LanguageWorkedWith'].apply(lambda x : x.str.contains('Python').sum())
+
+두 데이터 프레임 합치기(칼럼이 다르면 이상해짐)
+concat_df = pd.concat([country_respondents, country_python_uses])
+
+칼럼에 맞춰 데이터 프레임 합치기
+concat_df = pd.concat([country_respondents, country_python_uses], axis='columns')
+
+칼럼 이름 바꾸기
+concat_df.rename(columns = {'Country' : 'NumRespondents', 'LanguageWorkedWith' : 'NumKnowsPython'},inplace=True)
+
+나라별 학위 소유자 
+country_grp2=df.groupby(['Country'])
+CountryNum = df['Country'].value_counts()
+BachelorNum=country_grp2['EdLevel'].apply(lambda x : x.str.contains('Bachelor').sum())
+
+null값 제거 (NaN)
+df.dropna()
+
+모든 값이 빠진 행이 있다면 삭제
+df.dropna(axis='index', how='all')
+
+하나라도 빠진 행이 있다면 삭제
+df.dropna(axis='index', how='any')
+
+모든 값이 빠진 열이 있다면 삭제
+df.dropna(axis='columns', how='all')
+
+하나라도 빠진 행이 있다면 삭제
+df.dropna(axis='columns', how='any')
+
+email 칼럼 값이 없는 행만 드롭
+df.dropna(axis='index', subset=['email'])
+
+last와 email 값이 모두 빠진 경우에만 삭제
+df.dropna(axis='index', subset=['email','last'], how='all')
+
+NA라는 값을 np.nan으로 변경
+df.replace('NA', np.nan, inplace=True)
+
+na를 모두 0으로
+df.fillna(0)
+
+데이터 타입 변경
+df2['age'].astype(int)
+df2['age'] = df2['age'].astype(int)
+
+유일한 값 찾기
+df['YearsCode'].unique()
+
+데이텉 타입 변경
+df['YearsCode'] = df['YearsCode'].astype(float)
+
+여러 조건으로 검색
+filt = (tips['time'] == 'Dinner') & (tips['tip'] > 5.00)
+tips[filt]
+
+null 검사
+frame['col2'].isna()
+
+notnull이 포함된 값 수 구하기
+tips.groupby('sex').size()
+count안 쓴 이유는 not null의 수를 반환하기 때문
+
+해당 그룹의 편균과 사이트
+tips.groupby('day').agg({'tip' : np.mean, 'day' : np.size})
+
+2개의 조건을 가진 그룹이 2개의 분류로 나뉨
+ips.groupby(['smoker','day']).agg({'tip' : [np.size, np.mean]})
+
+merge(key 칼럼을 중심으로 합치기)
+pd.merge(df1, df2, on='key')
+
+레프트 조인
+pd.merge(df1, df2, on='key', how='left')
+
+라이트 조인
+pd.merge(df1, df2, on='key', how='right')
+
+아우터 조인
+pd.merge(df1, df2, on='key', how='outer')
+
+데이터프레임 합쳤을 시 중복 값 제거
+pd.concat([df1,df2]).drop_duplicates()
+
+
+
 ```
